@@ -261,11 +261,27 @@ public class Run extends UniversalActor  {
 						try {
 				FileReader fb = new FileReader("config.tsv");
 				BufferedReader in = new BufferedReader(fb);
-				String temp = in.readLine();
+				String temp = null;
 				while (temp!=null) {
+					{
+						// standardOutput<-println("while")
+						{
+							Object _arguments[] = { "while" };
+							Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+							__messages.add( message );
+						}
+					}
 					String[] bits = temp.split(" ");
 					actors.add(((Dudes)new Dudes(this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]))));
 					temp = in.readLine();
+					{
+						// standardOutput<-println("done")
+						{
+							Object _arguments[] = { "done" };
+							Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+							__messages.add( message );
+						}
+					}
 				}
 				in.close();
 				fb.close();
