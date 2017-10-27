@@ -1,0 +1,54 @@
+module concurrent;
+
+import java.io.*;
+import java.util.*;
+
+behavior Dude{
+  int id;
+  String host;
+  int port;
+  int priority;
+  int tolerance;
+
+  boolean inactive;
+  boolean revolted;
+
+  Dude(int i, String h, int p, int prior, int t) {
+    id = i;
+    host = h;
+    port = p;
+    priority = prior;
+    tolerance = t;
+    inactive = false;
+    revolted = false;
+  }
+
+//ACCESSORS
+  int getID() {
+    return id;
+  }
+  String getHost() {
+    return host;
+  }
+  int getPort() {
+    return port;
+  }
+  int getTolerance() {
+    return tolerance;
+  }
+  boolean getInactive() {
+    return inactive;
+  }
+  boolean getRevolted() {
+    return revolted;
+  }
+
+//SETTERS
+  void setInactive(boolean b) {
+    inactive = b;
+  }
+  void setRevolted(boolean b) {
+    revolted = b;
+  }
+
+}
