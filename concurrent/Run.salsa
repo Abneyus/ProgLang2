@@ -1,0 +1,40 @@
+module concurrent;
+
+import java.io.*;
+import java.util.*;
+
+behavior Run {
+  Run()
+  {
+    ArrayList actors = new ArrayList();
+
+    try
+    {
+      FileReader fb = new FileReader("config.tsv");
+      BufferedReader in = new BufferedReader(fb);
+
+      String temp = in.readLine();
+      while(temp != null)
+      {
+        String[] bits = temp.split(" ");
+
+        actors.add(new Dudes(Integer.parseInt(bits[0]),
+                  bits[1],
+                  Integer.parseInt(bits[2]),
+                  Integer.parseInt(bits[3]),
+                  Integer.parseInt(bits[4])));
+
+        temp = in.readLine();
+      }
+
+      in.close();
+      fb.close();
+    }
+    catch (IOException ioe)
+    {
+      standardOutput<-println("[error] Can't open the config.tsv file for reading.");
+      System.exit(1);
+    }
+
+  }
+}

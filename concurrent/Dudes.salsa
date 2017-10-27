@@ -3,7 +3,7 @@ module concurrent;
 import java.io.*;
 import java.util.*;
 
-behavior Actor{
+behavior Dudes{
   int id;
   String host;
   int port;
@@ -13,7 +13,7 @@ behavior Actor{
   boolean inactive;
   boolean revolted;
 
-  Actor(int i, String h, int p, int prior, int t) {
+  Dudes(int i, String h, int p, int prior, int t) {
     id = i;
     host = h;
     port = p;
@@ -33,9 +33,6 @@ behavior Actor{
   int getPort() {
     return port;
   }
-  int getPriority() {
-    return priority;
-}
   int getTolerance() {
     return tolerance;
   }
