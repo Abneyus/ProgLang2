@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 behavior Run {
-  Run()
+  void act(String[] args)
   {
     ArrayList actors = new ArrayList();
 
@@ -13,10 +13,10 @@ behavior Run {
       FileReader fb = new FileReader("config.tsv");
       BufferedReader in = new BufferedReader(fb);
 
-      String temp = in.readLine();
+      String temp = temp = in.readLine();
       while(temp != null)
       {
-        String[] bits = temp.split(" ");
+        String[] bits = temp.split("\t");
 
         actors.add(new Dudes(Integer.parseInt(bits[0]),
                   bits[1],
