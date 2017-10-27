@@ -280,5 +280,29 @@ public class Dudes extends UniversalActor  {
 			inactive = false;
 			revolted = false;
 		}
+		public int getID() {
+			return id;
+		}
+		public String getHost() {
+			return host;
+		}
+		public int getPort() {
+			return port;
+		}
+		public int getTolerance() {
+			return tolerance;
+		}
+		public boolean getInactive() {
+			return inactive;
+		}
+		public boolean getRevolted() {
+			return revolted;
+		}
+		public void setInactive(boolean b) {
+			inactive = b;
+		}
+		public void setRevolted(boolean b) {
+			revolted = b;
+		}
 	}
 }
