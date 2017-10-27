@@ -18,7 +18,7 @@ behavior Run {
       {
         String[] bits = temp.split("\t");
 
-        actors.add(new Dudes(Integer.parseInt(bits[0]),
+        actors.add(new Dude(Integer.parseInt(bits[0]),
                   bits[1],
                   Integer.parseInt(bits[2]),
                   Integer.parseInt(bits[3]),

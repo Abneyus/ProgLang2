@@ -271,10 +271,10 @@ public class Run extends UniversalActor  {
 			try {
 				FileReader fb = new FileReader("config.tsv");
 				BufferedReader in = new BufferedReader(fb);
-				String temp = null;
-				while ((temp=in.readLine())!=null) {
+				String temp = temp=in.readLine();
+				while (temp!=null) {
 					String[] bits = temp.split("\t");
-					actors.add(((Dudes)new Dudes(this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]))));
+					actors.add(((Dude)new Dude(this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]))));
 					temp = in.readLine();
 				}
 				in.close();
