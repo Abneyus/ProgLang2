@@ -174,8 +174,8 @@ public class Run extends UniversalActor  {
 		}
 	}
 
-	public UniversalActor construct () {
-		Object[] __arguments = {  };
+	public UniversalActor construct() {
+		Object[] __arguments = { };
 		this.send( new Message(this, this, "construct", __arguments, null, null) );
 		return this;
 	}
@@ -191,6 +191,14 @@ public class Run extends UniversalActor  {
 			self.activateGC();
 		}
 
+		public void preAct(String[] arguments) {
+			getActorMemory().getInverseList().removeInverseReference("rmsp://me",1);
+			{
+				Object[] __args={arguments};
+				self.send( new Message(self,self, "act", __args, null,null,false) );
+			}
+		}
+
 		public State() {
 			this(null, null);
 		}
@@ -200,6 +208,8 @@ public class Run extends UniversalActor  {
 			addClassName( "concurrent.Run$State" );
 			addMethodsForClasses();
 		}
+
+		public void construct() {}
 
 		public void process(Message message) {
 			Method[] matches = getMatches(message.getMethodName());
@@ -256,32 +266,16 @@ public class Run extends UniversalActor  {
 			}
 		}
 
-		void construct(){
+		public void act(String[] args) {
 			ArrayList actors = new ArrayList();
-						try {
+			try {
 				FileReader fb = new FileReader("config.tsv");
 				BufferedReader in = new BufferedReader(fb);
 				String temp = null;
-				while (temp!=null) {
-					{
-						// standardOutput<-println("while")
-						{
-							Object _arguments[] = { "while" };
-							Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-							__messages.add( message );
-						}
-					}
-					String[] bits = temp.split(" ");
+				while ((temp=in.readLine())!=null) {
+					String[] bits = temp.split("\t");
 					actors.add(((Dudes)new Dudes(this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]))));
 					temp = in.readLine();
-					{
-						// standardOutput<-println("done")
-						{
-							Object _arguments[] = { "done" };
-							Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-							__messages.add( message );
-						}
-					}
 				}
 				in.close();
 				fb.close();
