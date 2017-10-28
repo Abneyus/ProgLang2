@@ -174,8 +174,8 @@ public class Dude extends UniversalActor  {
 		}
 	}
 
-	public UniversalActor construct (int i, String h, int p, int prior, int t) {
-		Object[] __arguments = { new Integer(i), h, new Integer(p), new Integer(prior), new Integer(t) };
+	public UniversalActor construct (int id, String host, int port, int priority, int tolerance, Dude left, Dude right) {
+		Object[] __arguments = { new Integer(id), host, new Integer(port), new Integer(priority), new Integer(tolerance), left, right };
 		this.send( new Message(this, this, "construct", __arguments, null, null) );
 		return this;
 	}
@@ -268,17 +268,94 @@ public class Dude extends UniversalActor  {
 		String host;
 		int port;
 		int priority;
+		int maxTolerance;
 		int tolerance;
-		boolean inactive;
+		boolean active;
 		boolean revolted;
-		void construct(int i, String h, int p, int prior, int t){
-			id = i;
-			host = h;
-			port = p;
-			priority = prior;
-			tolerance = t;
-			inactive = false;
-			revolted = false;
+		boolean passive;
+		boolean pastLeader;
+		Dude left;
+		Dude right;
+		void construct(int id, String host, int port, int priority, int tolerance, Dude left, Dude right){
+			this.id = id;
+			this.host = host;
+			this.port = port;
+			this.priority = priority;
+			this.maxTolerance = tolerance;
+			this.tolerance = 0;
+			this.active = true;
+			this.revolted = false;
+			this.passive = false;
+			this.pastLeader = false;
+			this.left = left;
+			this.right = right;
+		}
+		public void campaign() {
+			if (!pastLeader) {{
+				{
+					// this.left<-consider(this.id, this.priority, true)
+					{
+						Object _arguments[] = { this.id, this.priority, true };
+						Message message = new Message( self, this.left, "consider", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+			}
+}		}
+		public void consider(int candidate, int canditatePriority, boolean leader) {
+			if (candidate==this.id&&leader) {{
+				{
+					// elect()
+					{
+						Object _arguments[] = {  };
+						Message message = new Message( self, self, "elect", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+			}
+}			else {{
+				if (canditatePriority>this.priority) {{
+					{
+						// this.left<-consider(candidate, canditatePriority, true)
+						{
+							Object _arguments[] = { candidate, canditatePriority, true };
+							Message message = new Message( self, this.left, "consider", _arguments, null, null );
+							__messages.add( message );
+						}
+					}
+				}
+}				else {if (!pastLeader) {{
+					{
+						// this.left<-consider(candidate, canditatePriority, false)
+						{
+							Object _arguments[] = { candidate, canditatePriority, false };
+							Message message = new Message( self, this.left, "consider", _arguments, null, null );
+							__messages.add( message );
+						}
+					}
+				}
+}				else {{
+					{
+						// this.left<-consider(candidate, canditatePriority, true)
+						{
+							Object _arguments[] = { candidate, canditatePriority, true };
+							Message message = new Message( self, this.left, "consider", _arguments, null, null );
+							__messages.add( message );
+						}
+					}
+				}
+}}			}
+}		}
+		public void elect() {
+			pastLeader = true;
+			{
+				// standardOutput<-println("Node: "+id+" elected.")
+				{
+					Object _arguments[] = { "Node: "+id+" elected." };
+					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+					__messages.add( message );
+				}
+			}
 		}
 		public int getID() {
 			return id;
@@ -293,16 +370,19 @@ public class Dude extends UniversalActor  {
 			return tolerance;
 		}
 		public boolean getInactive() {
-			return inactive;
+			return active;
 		}
 		public boolean getRevolted() {
 			return revolted;
 		}
-		public void setInactive(boolean b) {
-			inactive = b;
-		}
 		public void setRevolted(boolean b) {
 			revolted = b;
+		}
+		public void setLeft(Dude left) {
+			this.left = left;
+		}
+		public void setRight(Dude right) {
+			this.right = right;
 		}
 	}
 }

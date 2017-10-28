@@ -7,6 +7,7 @@ behavior Run {
   void act(String[] args)
   {
     ArrayList actors = new ArrayList();
+    int actorCount = 0;
 
     try
     {
@@ -18,11 +19,32 @@ behavior Run {
       {
         String[] bits = temp.split("\t");
 
-        actors.add(new Dude(Integer.parseInt(bits[0]),
-                  bits[1],
-                  Integer.parseInt(bits[2]),
-                  Integer.parseInt(bits[3]),
-                  Integer.parseInt(bits[4])));
+        if(actors.size() == 0)
+        {
+          actors.add(new Dude(Integer.parseInt(bits[0]),
+                    bits[1],
+                    Integer.parseInt(bits[2]),
+                    Integer.parseInt(bits[3]),
+                    Integer.parseInt(bits[4]),
+                    null,
+                    null));
+          // Edge case where there is only one actor.
+          actors.get(0) <- setLeft(actors.get(0));
+          actors.get(0) <- setRight(actors.get(0));
+          actorCount+=1;
+        }
+        else
+        {
+          actors.add(new Dude(Integer.parseInt(bits[0]),
+                    bits[1],
+                    Integer.parseInt(bits[2]),
+                    Integer.parseInt(bits[3]),
+                    Integer.parseInt(bits[4]),
+                    (Dude) actors.get(actorCount-1),
+                    (Dude) actors.get(0)));
+          actorCount+=1;
+          actors.get(actorCount-2) <- setRight(actors.get(actorCount-1));
+        }
 
         temp = in.readLine();
       }
@@ -35,6 +57,17 @@ behavior Run {
       standardOutput<-println("[error] Can't open the config.tsv file for reading.");
       System.exit(1);
     }
+
+    actors.get(0) <- setLeft(actors.get(actorCount-1));
+
+    // Finished creating ring
+
+    for(int a = 0; a < actors.size(); a++)
+    {
+      actors.get(a) <- campaign();
+    }
+
+
 
   }
 }

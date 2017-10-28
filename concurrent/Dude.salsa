@@ -8,20 +8,71 @@ behavior Dude{
   String host;
   int port;
   int priority;
+  int maxTolerance;
   int tolerance;
 
-  boolean inactive;
+  boolean active;
   boolean revolted;
+  boolean passive;
+  boolean pastLeader;
 
-  Dude(int i, String h, int p, int prior, int t) {
-    id = i;
-    host = h;
-    port = p;
-    priority = prior;
-    tolerance = t;
-    inactive = false;
-    revolted = false;
+  Dude left;
+  Dude right;
+
+  Dude(int id, String host, int port, int priority, int tolerance, Dude left, Dude right) {
+    this.id = id;
+    this.host = host;
+    this.port = port;
+    this.priority = priority;
+    this.maxTolerance = tolerance;
+    this.tolerance = 0;
+
+    this.active = true;
+    this.revolted = false;
+    this.passive = false;
+    this.pastLeader = false;
+
+    this.left = left;
+    this.right = right;
   }
+
+  void campaign()
+  {
+    if(!pastLeader)
+    {
+      this.left <- consider(this.id, this.priority, true);
+    }
+  }
+
+  void consider(int candidate, int canditatePriority, boolean leader)
+  {
+    if(candidate == this.id && leader)
+    {
+      elect();
+    }
+    else
+    {
+      if(canditatePriority > this.priority)
+      {
+        this.left <- consider(candidate, canditatePriority, true);
+      }
+      else if(!pastLeader)
+      {
+        this.left <- consider(candidate, canditatePriority, false);
+      }
+      else
+      {
+        this.left <- consider(candidate, canditatePriority, true);
+      }
+    }
+  }
+
+  void elect()
+  {
+    pastLeader = true;
+    standardOutput <- println("Node: " + id + " elected.");
+  }
+
 
 //ACCESSORS
   int getID() {
@@ -37,18 +88,25 @@ behavior Dude{
     return tolerance;
   }
   boolean getInactive() {
-    return inactive;
+    return active;
   }
   boolean getRevolted() {
     return revolted;
   }
 
 //SETTERS
-  void setInactive(boolean b) {
-    inactive = b;
-  }
   void setRevolted(boolean b) {
     revolted = b;
+  }
+
+  void setLeft(Dude left)
+  {
+    this.left = left;
+  }
+
+  void setRight(Dude right)
+  {
+    this.right = right;
   }
 
 }

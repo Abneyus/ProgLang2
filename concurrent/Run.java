@@ -268,14 +268,46 @@ public class Run extends UniversalActor  {
 
 		public void act(String[] args) {
 			ArrayList actors = new ArrayList();
+			int actorCount = 0;
 			try {
 				FileReader fb = new FileReader("config.tsv");
 				BufferedReader in = new BufferedReader(fb);
 				String temp = temp=in.readLine();
 				while (temp!=null) {
 					String[] bits = temp.split("\t");
-					actors.add(((Dude)new Dude(this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]))));
-					temp = in.readLine();
+					if (actors.size()==0) {{
+						actors.add(((Dude)new Dude(this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), null, null)));
+						{
+							// actors.get(0)<-setLeft(actors.get(0))
+							{
+								Object _arguments[] = { actors.get(0) };
+								Message message = new Message( self, actors.get(0), "setLeft", _arguments, null, null );
+								__messages.add( message );
+							}
+						}
+						{
+							// actors.get(0)<-setRight(actors.get(0))
+							{
+								Object _arguments[] = { actors.get(0) };
+								Message message = new Message( self, actors.get(0), "setRight", _arguments, null, null );
+								__messages.add( message );
+							}
+						}
+						actorCount += 1;
+					}
+}					else {{
+						actors.add(((Dude)new Dude(this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), (Dude)actors.get(actorCount-1), (Dude)actors.get(0))));
+						actorCount += 1;
+						{
+							// actors.get(actorCount-2)<-setRight(actors.get(actorCount-1))
+							{
+								Object _arguments[] = { actors.get(actorCount-1) };
+								Message message = new Message( self, actors.get(actorCount-2), "setRight", _arguments, null, null );
+								__messages.add( message );
+							}
+						}
+					}
+}					temp = in.readLine();
 				}
 				in.close();
 				fb.close();
@@ -292,6 +324,24 @@ public class Run extends UniversalActor  {
 				System.exit(1);
 			}
 
+			{
+				// actors.get(0)<-setLeft(actors.get(actorCount-1))
+				{
+					Object _arguments[] = { actors.get(actorCount-1) };
+					Message message = new Message( self, actors.get(0), "setLeft", _arguments, null, null );
+					__messages.add( message );
+				}
+			}
+			for (int a = 0; a<actors.size(); a++){
+				{
+					// actors.get(a)<-campaign()
+					{
+						Object _arguments[] = {  };
+						Message message = new Message( self, actors.get(a), "campaign", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+			}
 		}
 	}
 }
