@@ -268,46 +268,14 @@ public class Run extends UniversalActor  {
 
 		public void act(String[] args) {
 			ArrayList actors = new ArrayList();
-			int actorCount = 0;
+			ArrayList lines = new ArrayList();
 			try {
 				FileReader fb = new FileReader(args[0]);
 				BufferedReader in = new BufferedReader(fb);
 				String temp = temp=in.readLine();
 				while (temp!=null) {
-					String[] bits = temp.split("\t");
-					if (actors.size()==0) {{
-						actors.add(((Dude)new Dude(this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), null, null)));
-						{
-							// actors.get(0)<-setLeft(actors.get(0))
-							{
-								Object _arguments[] = { actors.get(0) };
-								Message message = new Message( self, actors.get(0), "setLeft", _arguments, null, null );
-								__messages.add( message );
-							}
-						}
-						{
-							// actors.get(0)<-setRight(actors.get(0))
-							{
-								Object _arguments[] = { actors.get(0) };
-								Message message = new Message( self, actors.get(0), "setRight", _arguments, null, null );
-								__messages.add( message );
-							}
-						}
-						actorCount += 1;
-					}
-}					else {{
-						actors.add(((Dude)new Dude(this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), (Dude)actors.get(actorCount-1), (Dude)actors.get(0))));
-						actorCount += 1;
-						{
-							// actors.get(actorCount-2)<-setRight(actors.get(actorCount-1))
-							{
-								Object _arguments[] = { actors.get(actorCount-1) };
-								Message message = new Message( self, actors.get(actorCount-2), "setRight", _arguments, null, null );
-								__messages.add( message );
-							}
-						}
-					}
-}					temp = in.readLine();
+					lines.add(temp);
+					temp = in.readLine();
 				}
 				in.close();
 				fb.close();
@@ -324,19 +292,27 @@ public class Run extends UniversalActor  {
 				System.exit(1);
 			}
 
+			for (int a = 0; a<lines.size(); a++){
+				String[] bits = ((String)lines.get(a)).split("\t");
+				if (actors.size()==0) {{
+					actors.add(((Dude)new Dude(this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), lines.size(), null)));
+				}
+}				else {{
+					actors.add(((Dude)new Dude(this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), lines.size(), (Dude)actors.get(actors.size()-1))));
+				}
+}			}
 			{
-				// actors.get(0)<-setLeft(actors.get(actorCount-1))
+				Token token_2_0 = new Token();
+				// actors.get(0)<-setLeft(actors.get(actors.size()-1))
 				{
-					Object _arguments[] = { actors.get(actorCount-1) };
-					Message message = new Message( self, actors.get(0), "setLeft", _arguments, null, null );
+					Object _arguments[] = { actors.get(actors.size()-1) };
+					Message message = new Message( self, actors.get(0), "setLeft", _arguments, null, token_2_0 );
 					__messages.add( message );
 				}
-			}
-			{
-				// actors.get(0)<-consider(-1, -1)
+				// actors.get(0)<-consider(-1, -1, 0, 0)
 				{
-					Object _arguments[] = { new Integer(-1), new Integer(-1) };
-					Message message = new Message( self, actors.get(0), "consider", _arguments, null, null );
+					Object _arguments[] = { new Integer(-1), new Integer(-1), new Integer(0), new Integer(0) };
+					Message message = new Message( self, actors.get(0), "consider", _arguments, token_2_0, null );
 					__messages.add( message );
 				}
 			}
