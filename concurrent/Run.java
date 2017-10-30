@@ -270,7 +270,7 @@ public class Run extends UniversalActor  {
 			ArrayList actors = new ArrayList();
 			int actorCount = 0;
 			try {
-				FileReader fb = new FileReader("config.tsv");
+				FileReader fb = new FileReader(args[0]);
 				BufferedReader in = new BufferedReader(fb);
 				String temp = temp=in.readLine();
 				while (temp!=null) {
@@ -332,14 +332,12 @@ public class Run extends UniversalActor  {
 					__messages.add( message );
 				}
 			}
-			for (int a = 0; a<actors.size(); a++){
+			{
+				// actors.get(0)<-consider(-1, -1)
 				{
-					// actors.get(a)<-campaign()
-					{
-						Object _arguments[] = {  };
-						Message message = new Message( self, actors.get(a), "campaign", _arguments, null, null );
-						__messages.add( message );
-					}
+					Object _arguments[] = { new Integer(-1), new Integer(-1) };
+					Message message = new Message( self, actors.get(0), "consider", _arguments, null, null );
+					__messages.add( message );
 				}
 			}
 		}
