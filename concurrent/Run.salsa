@@ -11,7 +11,7 @@ behavior Run {
 
     try
     {
-      FileReader fb = new FileReader("config.tsv");
+      FileReader fb = new FileReader(args[0]);
       BufferedReader in = new BufferedReader(fb);
 
       String temp = temp = in.readLine();
@@ -60,12 +60,8 @@ behavior Run {
 
     actors.get(0) <- setLeft(actors.get(actorCount-1));
 
-    // Finished creating ring
+    actors.get(0) <- consider(-1, -1);
 
-    for(int a = 0; a < actors.size(); a++)
-    {
-      actors.get(a) <- campaign();
-    }
 
 
     /* ***

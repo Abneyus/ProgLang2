@@ -38,15 +38,12 @@ behavior Dude{
 
   void campaign()
   {
-    if(!pastLeader)
-    {
-      this.left <- consider(this.id, this.priority, true);
-    }
+    this.left <- consider(-1, -1, false);
   }
 
-  void consider(int candidate, int canditatePriority, boolean leader)
+  void consider(int candidate, int canditatePriority)
   {
-    if(candidate == this.id && leader)
+    if(candidate == this.id)
     {
       elect();
     }
@@ -54,15 +51,15 @@ behavior Dude{
     {
       if(canditatePriority > this.priority)
       {
-        this.left <- consider(candidate, canditatePriority, true);
+        this.left <- consider(candidate, canditatePriority);
       }
       else if(!pastLeader)
       {
-        this.left <- consider(candidate, canditatePriority, false);
+        this.left <- consider(this.id, this.priority);
       }
       else
       {
-        this.left <- consider(candidate, canditatePriority, true);
+        this.left <- consider(candidate, canditatePriority);
       }
     }
   }
@@ -95,6 +92,11 @@ behavior Dude{
   }
   boolean getRevolted() {
     return revolted;
+  }
+
+  boolean getPastLeader()
+  {
+    return pastLeader;
   }
 
 //SETTERS

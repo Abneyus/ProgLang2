@@ -291,19 +291,17 @@ public class Dude extends UniversalActor  {
 			this.right = right;
 		}
 		public void campaign() {
-			if (!pastLeader) {{
+			{
+				// this.left<-consider(-1, -1, false)
 				{
-					// this.left<-consider(this.id, this.priority, true)
-					{
-						Object _arguments[] = { this.id, this.priority, true };
-						Message message = new Message( self, this.left, "consider", _arguments, null, null );
-						__messages.add( message );
-					}
+					Object _arguments[] = { new Integer(-1), new Integer(-1), false };
+					Message message = new Message( self, this.left, "consider", _arguments, null, null );
+					__messages.add( message );
 				}
 			}
-}		}
-		public void consider(int candidate, int canditatePriority, boolean leader) {
-			if (candidate==this.id&&leader) {{
+		}
+		public void consider(int candidate, int canditatePriority) {
+			if (candidate==this.id) {{
 				{
 					// elect()
 					{
@@ -316,9 +314,9 @@ public class Dude extends UniversalActor  {
 }			else {{
 				if (canditatePriority>this.priority) {{
 					{
-						// this.left<-consider(candidate, canditatePriority, true)
+						// this.left<-consider(candidate, canditatePriority)
 						{
-							Object _arguments[] = { candidate, canditatePriority, true };
+							Object _arguments[] = { candidate, canditatePriority };
 							Message message = new Message( self, this.left, "consider", _arguments, null, null );
 							__messages.add( message );
 						}
@@ -326,9 +324,9 @@ public class Dude extends UniversalActor  {
 				}
 }				else {if (!pastLeader) {{
 					{
-						// this.left<-consider(candidate, canditatePriority, false)
+						// this.left<-consider(this.id, this.priority)
 						{
-							Object _arguments[] = { candidate, canditatePriority, false };
+							Object _arguments[] = { this.id, this.priority };
 							Message message = new Message( self, this.left, "consider", _arguments, null, null );
 							__messages.add( message );
 						}
@@ -336,9 +334,9 @@ public class Dude extends UniversalActor  {
 				}
 }				else {{
 					{
-						// this.left<-consider(candidate, canditatePriority, true)
+						// this.left<-consider(candidate, canditatePriority)
 						{
-							Object _arguments[] = { candidate, canditatePriority, true };
+							Object _arguments[] = { candidate, canditatePriority };
 							Message message = new Message( self, this.left, "consider", _arguments, null, null );
 							__messages.add( message );
 						}
@@ -369,11 +367,17 @@ public class Dude extends UniversalActor  {
 		public int getTolerance() {
 			return tolerance;
 		}
+		public int getMaxTolerance() {
+			return maxTolerance;
+		}
 		public boolean getInactive() {
 			return active;
 		}
 		public boolean getRevolted() {
 			return revolted;
+		}
+		public boolean getPastLeader() {
+			return pastLeader;
 		}
 		public void setRevolted(boolean b) {
 			revolted = b;
@@ -383,6 +387,9 @@ public class Dude extends UniversalActor  {
 		}
 		public void setRight(Dude right) {
 			this.right = right;
+		}
+		public void setPastLeader(boolean b) {
+			pastLeader = b;
 		}
 	}
 }
