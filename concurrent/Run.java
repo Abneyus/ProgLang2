@@ -270,6 +270,8 @@ public class Run extends UniversalActor  {
 			ArrayList actors = new ArrayList();
 			ArrayList lines = new ArrayList();
 			try {
+				FileWriter fw = new FileWriter("output.txt");
+				fw.close();
 				FileReader fb = new FileReader(args[0]);
 				BufferedReader in = new BufferedReader(fb);
 				String temp = temp=in.readLine();
