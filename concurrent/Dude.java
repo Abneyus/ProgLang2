@@ -174,8 +174,8 @@ public class Dude extends UniversalActor  {
 		}
 	}
 
-	public UniversalActor construct (int id, String host, int port, int priority, int tolerance, Dude left, Dude right) {
-		Object[] __arguments = { new Integer(id), host, new Integer(port), new Integer(priority), new Integer(tolerance), left, right };
+	public UniversalActor construct (int id, String host, int port, int priority, int tolerance, int actors, Dude left) {
+		Object[] __arguments = { new Integer(id), host, new Integer(port), new Integer(priority), new Integer(tolerance), new Integer(actors), left };
 		this.send( new Message(this, this, "construct", __arguments, null, null) );
 		return this;
 	}
@@ -268,45 +268,49 @@ public class Dude extends UniversalActor  {
 		String host;
 		int port;
 		int priority;
-		int maxTolerance;
 		int tolerance;
+		int actors;
 		boolean active;
-		boolean revolted;
-		boolean passive;
 		boolean pastLeader;
 		Dude left;
-		Dude right;
-		void construct(int id, String host, int port, int priority, int tolerance, Dude left, Dude right){
+		void construct(int id, String host, int port, int priority, int tolerance, int actors, Dude left){
 			this.id = id;
 			this.host = host;
 			this.port = port;
 			this.priority = priority;
-			this.maxTolerance = tolerance;
-			this.tolerance = 0;
-			this.active = true;
-			this.revolted = false;
-			this.passive = false;
+			this.tolerance = tolerance;
+			this.actors = actors;
+			this.active = false;
 			this.pastLeader = false;
 			this.left = left;
-			this.right = right;
 		}
-		public void campaign() {
-			{
-				// this.left<-consider(-1, -1, false)
+		public void consider(int candidate, int canditatePriority, int timestamp, int elections) {
+			if (elections==actors) {{
 				{
-					Object _arguments[] = { new Integer(-1), new Integer(-1), false };
-					Message message = new Message( self, this.left, "consider", _arguments, null, null );
-					__messages.add( message );
+					// standardOutput<-println("End of simulation")
+					{
+						Object _arguments[] = { "End of simulation" };
+						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+						__messages.add( message );
+					}
 				}
 			}
-		}
-		public void consider(int candidate, int canditatePriority) {
-			if (candidate==this.id) {{
+}			else {if (candidate==this.id) {{
+				active = true;
+				pastLeader = true;
 				{
-					// elect()
+					// standardOutput<-println("ID="+this.id+" became leader at t="+timestamp)
 					{
-						Object _arguments[] = {  };
-						Message message = new Message( self, self, "elect", _arguments, null, null );
+						Object _arguments[] = { "ID="+this.id+" became leader at t="+timestamp };
+						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+				{
+					// tick(timestamp, timestamp, this.id, 0, elections)
+					{
+						Object _arguments[] = { timestamp, timestamp, this.id, new Integer(0), elections };
+						Message message = new Message( self, self, "tick", _arguments, null, null );
 						__messages.add( message );
 					}
 				}
@@ -314,9 +318,9 @@ public class Dude extends UniversalActor  {
 }			else {{
 				if (canditatePriority>this.priority) {{
 					{
-						// this.left<-consider(candidate, canditatePriority)
+						// this.left<-consider(candidate, canditatePriority, timestamp, elections)
 						{
-							Object _arguments[] = { candidate, canditatePriority };
+							Object _arguments[] = { candidate, canditatePriority, timestamp, elections };
 							Message message = new Message( self, this.left, "consider", _arguments, null, null );
 							__messages.add( message );
 						}
@@ -324,9 +328,9 @@ public class Dude extends UniversalActor  {
 				}
 }				else {if (!pastLeader) {{
 					{
-						// this.left<-consider(this.id, this.priority)
+						// this.left<-consider(this.id, this.priority, timestamp, elections)
 						{
-							Object _arguments[] = { this.id, this.priority };
+							Object _arguments[] = { this.id, this.priority, timestamp, elections };
 							Message message = new Message( self, this.left, "consider", _arguments, null, null );
 							__messages.add( message );
 						}
@@ -334,62 +338,79 @@ public class Dude extends UniversalActor  {
 				}
 }				else {{
 					{
-						// this.left<-consider(candidate, canditatePriority)
+						// this.left<-consider(candidate, canditatePriority, timestamp, elections)
 						{
-							Object _arguments[] = { candidate, canditatePriority };
+							Object _arguments[] = { candidate, canditatePriority, timestamp, elections };
 							Message message = new Message( self, this.left, "consider", _arguments, null, null );
 							__messages.add( message );
 						}
 					}
 				}
 }}			}
-}		}
-		public void elect() {
-			pastLeader = true;
-			{
-				// standardOutput<-println("Node: "+id+" elected.")
+}}		}
+		public void tick(int timestamp, int electionTime, int presidentID, int revolts, int elections) {
+			if (presidentID==this.id) {{
+				if (revolts>((actors-1)/2)) {{
+					{
+						// standardOutput<-println("ID="+this.id+" was deposed at t="+timestamp)
+						{
+							Object _arguments[] = { "ID="+this.id+" was deposed at t="+timestamp };
+							Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+							__messages.add( message );
+						}
+					}
+					active = false;
+					{
+						// consider(-1, -1, timestamp+1, elections+1)
+						{
+							Object _arguments[] = { new Integer(-1), new Integer(-1), timestamp+1, elections+1 };
+							Message message = new Message( self, self, "consider", _arguments, null, null );
+							__messages.add( message );
+						}
+					}
+				}
+}				else {{
+					{
+						// left<-tick(timestamp+1, electionTime, presidentID, revolts, elections)
+						{
+							Object _arguments[] = { timestamp+1, electionTime, presidentID, revolts, elections };
+							Message message = new Message( self, left, "tick", _arguments, null, null );
+							__messages.add( message );
+						}
+					}
+				}
+}			}
+}			else {if (timestamp-electionTime>tolerance&&timestamp-electionTime-actors<tolerance) {{
 				{
-					Object _arguments[] = { "Node: "+id+" elected." };
-					Message message = new Message( self, standardOutput, "println", _arguments, null, null );
-					__messages.add( message );
+					// standardOutput<-println("ID="+this.id+" revolted at t="+timestamp)
+					{
+						Object _arguments[] = { "ID="+this.id+" revolted at t="+timestamp };
+						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+				{
+					// left<-tick(timestamp+1, electionTime, presidentID, revolts+1, elections)
+					{
+						Object _arguments[] = { timestamp+1, electionTime, presidentID, revolts+1, elections };
+						Message message = new Message( self, left, "tick", _arguments, null, null );
+						__messages.add( message );
+					}
 				}
 			}
-		}
-		public int getID() {
-			return id;
-		}
-		public String getHost() {
-			return host;
-		}
-		public int getPort() {
-			return port;
-		}
-		public int getTolerance() {
-			return tolerance;
-		}
-		public int getMaxTolerance() {
-			return maxTolerance;
-		}
-		public boolean getInactive() {
-			return active;
-		}
-		public boolean getRevolted() {
-			return revolted;
-		}
-		public boolean getPastLeader() {
-			return pastLeader;
-		}
-		public void setRevolted(boolean b) {
-			revolted = b;
-		}
+}			else {{
+				{
+					// left<-tick(timestamp+1, electionTime, presidentID, revolts, elections)
+					{
+						Object _arguments[] = { timestamp+1, electionTime, presidentID, revolts, elections };
+						Message message = new Message( self, left, "tick", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+			}
+}}		}
 		public void setLeft(Dude left) {
 			this.left = left;
-		}
-		public void setRight(Dude right) {
-			this.right = right;
-		}
-		public void setPastLeader(boolean b) {
-			pastLeader = b;
 		}
 	}
 }

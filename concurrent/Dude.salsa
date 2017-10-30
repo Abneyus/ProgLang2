@@ -8,113 +8,87 @@ behavior Dude{
   String host;
   int port;
   int priority;
-  int maxTolerance;
   int tolerance;
+  int actors;
 
   boolean active;
-  boolean revolted;
-  boolean passive;
   boolean pastLeader;
 
   Dude left;
-  Dude right;
 
-  Dude(int id, String host, int port, int priority, int tolerance, Dude left, Dude right) {
+  Dude(int id, String host, int port, int priority, int tolerance, int actors, Dude left) {
     this.id = id;
     this.host = host;
     this.port = port;
     this.priority = priority;
-    this.maxTolerance = tolerance;
-    this.tolerance = 0;
+    this.tolerance = tolerance;
+    this.actors = actors;
 
-    this.active = true;
-    this.revolted = false;
-    this.passive = false;
+    this.active = false;
     this.pastLeader = false;
 
     this.left = left;
-    this.right = right;
   }
 
-  void campaign()
+  void consider(int candidate, int canditatePriority, int timestamp, int elections)
   {
-    this.left <- consider(-1, -1, false);
-  }
-
-  void consider(int candidate, int canditatePriority)
-  {
-    if(candidate == this.id)
+    if(elections == actors)
     {
-      elect();
+      standardOutput <- println("End of simulation");
+    }
+    else if(candidate == this.id)
+    {
+      active = true;
+      pastLeader = true;
+      standardOutput <- println("ID=" + this.id + " became leader at t=" + timestamp);
+      tick(timestamp, timestamp, this.id, 0, elections);
     }
     else
     {
       if(canditatePriority > this.priority)
       {
-        this.left <- consider(candidate, canditatePriority);
+        this.left <- consider(candidate, canditatePriority, timestamp, elections);
       }
       else if(!pastLeader)
       {
-        this.left <- consider(this.id, this.priority);
+        this.left <- consider(this.id, this.priority, timestamp, elections);
       }
       else
       {
-        this.left <- consider(candidate, canditatePriority);
+        this.left <- consider(candidate, canditatePriority, timestamp, elections);
       }
     }
   }
 
-  void elect()
+  void tick(int timestamp, int electionTime, int presidentID, int revolts, int elections)
   {
-    pastLeader = true;
-    standardOutput <- println("Node: " + id + " elected.");
-  }
-
-
-//ACCESSORS
-  int getID() {
-    return id;
-  }
-  String getHost() {
-    return host;
-  }
-  int getPort() {
-    return port;
-  }
-  int getTolerance() {
-    return tolerance;
-  }
-  int getMaxTolerance() {
-    return maxTolerance;
-  }
-  boolean getInactive() {
-    return active;
-  }
-  boolean getRevolted() {
-    return revolted;
-  }
-
-  boolean getPastLeader()
-  {
-    return pastLeader;
-  }
-
-//SETTERS
-  void setRevolted(boolean b) {
-    revolted = b;
+    if(presidentID == this.id)
+    {
+      if(revolts > ((actors-1)/2))
+      {
+        standardOutput <- println("ID=" + this.id + " was deposed at t=" + timestamp);
+        active = false;
+        consider(-1, -1, timestamp+1, elections+1);
+      }
+      else
+      {
+        left <- tick(timestamp+1, electionTime, presidentID, revolts, elections);
+      }
+    }
+    else if(timestamp - electionTime > tolerance && timestamp - electionTime - actors < tolerance)
+    {
+      standardOutput <- println("ID=" + this.id + " revolted at t=" + timestamp);
+      left <- tick(timestamp+1, electionTime, presidentID, revolts+1, elections);
+    }
+    else
+    {
+      left <- tick(timestamp+1, electionTime, presidentID, revolts, elections);
+    }
   }
 
   void setLeft(Dude left)
   {
     this.left = left;
-  }
-
-  void setRight(Dude right)
-  {
-    this.right = right;
-  }
-  void setPastLeader(boolean b) {
-    pastLeader=b;
   }
 
 }
