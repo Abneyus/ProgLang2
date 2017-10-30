@@ -87,6 +87,9 @@ behavior Dude{
   int getTolerance() {
     return tolerance;
   }
+  int getMaxTolerance() {
+    return maxTolerance;
+  }
   boolean getInactive() {
     return active;
   }
@@ -107,6 +110,9 @@ behavior Dude{
   void setRight(Dude right)
   {
     this.right = right;
+  }
+  void setPastLeader(boolean b) {
+    pastLeader=b;
   }
 
 }
