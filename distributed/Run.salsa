@@ -1,0 +1,74 @@
+module distributed;
+
+import java.io.*;
+import java.util.*;
+
+behavior Run {
+
+  void act(String[] args)
+  {
+    ArrayList actors = new ArrayList();
+    ArrayList lines = new ArrayList();
+
+    try
+    {
+      FileWriter fw = new FileWriter("output.txt");
+      fw.close();
+      FileReader fb = new FileReader(args[0]);
+      BufferedReader in = new BufferedReader(fb);
+
+      String temp = temp = in.readLine();
+      while(temp != null)
+      {
+        lines.add(temp);
+
+        temp = in.readLine();
+      }
+
+      in.close();
+      fb.close();
+    }
+    catch (IOException ioe)
+    {
+      standardOutput<-println("[error] Can't open the config.tsv file for reading.");
+      System.exit(1);
+    }
+
+    for(int a = 0; a < lines.size(); a++)
+    {
+      String[] bits = ((String)lines.get(a)).split("\t");
+
+      // The first actor
+      if(actors.size() == 0)
+      {
+        Dude temp = new Dude(Integer.parseInt(bits[0]),
+                  bits[1],
+                  Integer.parseInt(bits[2]),
+                  Integer.parseInt(bits[3]),
+                  Integer.parseInt(bits[4]),
+                  lines.size(),
+                  null)
+                  at (new UAN("uan://" + bits[1] + "/a"+a),
+                  new UAL("rmsp://" + bits[1] + ":" + bits[2] + "/" + a));
+        actors.add(temp);
+      }
+      else
+      {
+        Dude temp = new Dude(Integer.parseInt(bits[0]),
+                  bits[1],
+                  Integer.parseInt(bits[2]),
+                  Integer.parseInt(bits[3]),
+                  Integer.parseInt(bits[4]),
+                  lines.size(),
+                  (Dude) actors.get(actors.size()-1))
+                  at (new UAN("uan://" + bits[1] + "/a"+a),
+                  new UAL("rmsp://" + bits[1] + ":" + bits[2] + "/" + a));
+        actors.add(temp);
+      }
+    }
+
+    actors.get(0) <- setLeft(actors.get(actors.size()-1)) @
+    actors.get(0) <- consider(-1, -1, 0, 0);
+
+  }
+}
