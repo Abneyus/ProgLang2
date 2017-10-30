@@ -68,6 +68,61 @@ behavior Run {
     }
 
 
+    /* ***
+    this is a bunch of stuff that probably won't compile. I'm not sure
+    how you use return values in salsa, so I gave up for now.
+
+    the logic for the algorithm is probably mostly correct here.
+
+    elect() doesn't exist yet, but would probably be what you were
+    going for with campaign()
+    passTime also doesn't exist yet, but it'd be a Dude function that
+    passes the time around the circle and records the number of revolts.
+    *** */
+
+    // int regimes=0, time =0, timeSinceLastElection, revolted=0, leaderID=-1;
+    // boolean electionTime=true;
+    //
+    // leaderID=elect(actors.get(0));
+    // actors.get(leaderID).setPastLeader(true);
+    //
+    // while(regimes<actors.size())
+    // {
+    //   if(electionTime)
+    //   {
+    //     //campaign and elect, no time passage
+    //     leaderID=elect(actors.get(leaderID));
+    //     actors.get(leaderID).setPastLeader(true);
+    //     revolted=0;
+    //     timeSinceLastElection=0;
+    //     regimes++;
+    //     electionTime=false;
+    //     standardOutput<-println("ID="+leaderID+" became leader at t="+time);
+    //
+    //     for(int a=0; a<actors.size(); a++)
+    //     {
+    //       actors.get(a).setRevolted(false);
+    //     }
+    //   }
+    //   else
+    //   {
+    //     revolted+=actors.get(leaderID).passTime(timeSinceLastElection);
+    //     time+=actors.size();
+    //     timeSinceLastElection+=actors.size();
+    //
+    //     if(revolted>actors.size()/2)
+    //     {
+    //       electionTime=true;
+    //       standardOutput<-println("ID="+leaderID+" was deposed at t="+time);
+    //     }
+    //   }
+    // }
+    // standardOutput<-println("End of simulation");
+
 
   }
+
+
+
+
 }
