@@ -369,6 +369,9 @@ public class Dude extends UniversalActor  {
 		public int getTolerance() {
 			return tolerance;
 		}
+		public int getMaxTolerance() {
+			return maxTolerance;
+		}
 		public boolean getInactive() {
 			return active;
 		}
@@ -383,6 +386,9 @@ public class Dude extends UniversalActor  {
 		}
 		public void setRight(Dude right) {
 			this.right = right;
+		}
+		public void setPastLeader(boolean b) {
+			pastLeader = b;
 		}
 	}
 }
