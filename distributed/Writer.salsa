@@ -1,0 +1,23 @@
+module distributed;
+
+import java.io.*;
+import java.util.*;
+
+behavior Writer{
+
+  void write(String s)
+  {
+    try
+    {
+      FileWriter fw = new FileWriter("output.txt", true);
+      BufferedWriter bw = new BufferedWriter(fw);
+      bw.write(s);
+      bw.close();
+      fw.close();
+    }
+    catch (IOException e)
+    {
+      System.exit(1);
+    }
+  }
+}
