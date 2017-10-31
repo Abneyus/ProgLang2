@@ -14,9 +14,11 @@ behavior Dude{
   boolean active;
   boolean pastLeader;
 
+  Writer writeroni;
+
   Dude left;
 
-  Dude(int id, String host, int port, int priority, int tolerance, int actors, Dude left) {
+  Dude(int id, String host, int port, int priority, int tolerance, int actors, Dude left, Writer writeroni) {
     this.id = id;
     this.host = host;
     this.port = port;
@@ -28,19 +30,21 @@ behavior Dude{
     this.pastLeader = false;
 
     this.left = left;
+
+    this.writeroni = writeroni;
   }
 
   void consider(int candidate, int canditatePriority, int timestamp, int elections)
   {
     if(elections == actors)
     {
-      writeMessage("End of simulation");
+      writeroni <- write("End of simulation");
     }
     else if(candidate == this.id)
     {
       active = true;
       pastLeader = true;
-      writeMessage("ID=" + this.id + " became leader at t=" + timestamp + "\n");
+      writeroni <- write("ID=" + this.id + " became leader at t=" + timestamp + "\n");
       tick(timestamp, timestamp, this.id, 0, elections);
     }
     else
@@ -66,7 +70,7 @@ behavior Dude{
     {
       if(revolts > ((actors-1)/2))
       {
-        writeMessage("ID=" + this.id + " was deposed at t=" + timestamp + "\n");
+        writeroni <- write("ID=" + this.id + " was deposed at t=" + timestamp + "\n");
         active = false;
         consider(-1, -1, timestamp+1, elections+1);
       }
@@ -77,27 +81,12 @@ behavior Dude{
     }
     else if(timestamp - electionTime > tolerance && timestamp - electionTime - actors < tolerance)
     {
-      writeMessage("ID=" + this.id + " revolted at t=" + timestamp + "\n");
+      writeroni <- write("ID=" + this.id + " revolted at t=" + timestamp + "\n");
       left <- tick(timestamp+1, electionTime, presidentID, revolts+1, elections);
     }
     else
     {
       left <- tick(timestamp+1, electionTime, presidentID, revolts, elections);
-    }
-  }
-
-  void writeMessage(String  temp)
-  {
-    try
-    {
-      FileWriter fw = new FileWriter("output.txt", true);
-      BufferedWriter bw = new BufferedWriter(fw);
-      bw.write(temp);
-      bw.close();
-      fw.close();
-    } catch (IOException e)
-    {
-      return;
     }
   }
 

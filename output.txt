@@ -23,4 +23,3 @@ ID=0 revolted at t=185
 ID=4 revolted at t=196
 ID=3 revolted at t=207
 ID=1 was deposed at t=209
-End of simulation

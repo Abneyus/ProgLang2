@@ -34,7 +34,7 @@ import salsa.resources.ActorService;
 import java.io.*;
 import java.util.*;
 
-public class Dude extends UniversalActor  {
+public class Writer extends UniversalActor  {
 	public static void main(String args[]) {
 		UAN uan = null;
 		UAL ual = null;
@@ -69,7 +69,7 @@ public class Dude extends UniversalActor  {
 			ual = new UAL( ServiceFactory.getTheater().getLocation() + System.getProperty("identifier"));
 		}
 		RunTime.receivedMessage();
-		Dude instance = (Dude)new Dude(uan, ual,null).construct();
+		Writer instance = (Writer)new Writer(uan, ual,null).construct();
 		gc.WeakReference instanceRef=new gc.WeakReference(uan,ual);
 		{
 			Object[] _arguments = { args };
@@ -82,18 +82,18 @@ public class Dude extends UniversalActor  {
 		RunTime.finishedProcessingMessage();
 	}
 
-	public static ActorReference getReferenceByName(UAN uan)	{ return new Dude(false, uan); }
-	public static ActorReference getReferenceByName(String uan)	{ return Dude.getReferenceByName(new UAN(uan)); }
-	public static ActorReference getReferenceByLocation(UAL ual)	{ return new Dude(false, ual); }
+	public static ActorReference getReferenceByName(UAN uan)	{ return new Writer(false, uan); }
+	public static ActorReference getReferenceByName(String uan)	{ return Writer.getReferenceByName(new UAN(uan)); }
+	public static ActorReference getReferenceByLocation(UAL ual)	{ return new Writer(false, ual); }
 
-	public static ActorReference getReferenceByLocation(String ual)	{ return Dude.getReferenceByLocation(new UAL(ual)); }
-	public Dude(boolean o, UAN __uan)	{ super(false,__uan); }
-	public Dude(boolean o, UAL __ual)	{ super(false,__ual); }
-	public Dude(UAN __uan,UniversalActor.State sourceActor)	{ this(__uan, null, sourceActor); }
-	public Dude(UAL __ual,UniversalActor.State sourceActor)	{ this(null, __ual, sourceActor); }
-	public Dude(UniversalActor.State sourceActor)		{ this(null, null, sourceActor);  }
-	public Dude()		{  }
-	public Dude(UAN __uan, UAL __ual, Object obj) {
+	public static ActorReference getReferenceByLocation(String ual)	{ return Writer.getReferenceByLocation(new UAL(ual)); }
+	public Writer(boolean o, UAN __uan)	{ super(false,__uan); }
+	public Writer(boolean o, UAL __ual)	{ super(false,__ual); }
+	public Writer(UAN __uan,UniversalActor.State sourceActor)	{ this(__uan, null, sourceActor); }
+	public Writer(UAL __ual,UniversalActor.State sourceActor)	{ this(null, __ual, sourceActor); }
+	public Writer(UniversalActor.State sourceActor)		{ this(null, null, sourceActor);  }
+	public Writer()		{  }
+	public Writer(UAN __uan, UAL __ual, Object obj) {
 		//decide the type of sourceActor
 		//if obj is null, the actor must be the startup actor.
 		//if obj is an actorReference, this actor is created by a remote actor
@@ -116,7 +116,7 @@ public class Dude extends UniversalActor  {
 			      setSource(sourceActor.getUAN(), sourceActor.getUAL());
 			      activateGC();
 			    }
-			    createRemotely(__uan, __ual, "distributed.Dude", sourceRef);
+			    createRemotely(__uan, __ual, "distributed.Writer", sourceRef);
 			  }
 
 			  // local creation
@@ -174,12 +174,6 @@ public class Dude extends UniversalActor  {
 		}
 	}
 
-	public UniversalActor construct (int id, String host, int port, int priority, int tolerance, int actors, Dude left, Writer writeroni) {
-		Object[] __arguments = { new Integer(id), host, new Integer(port), new Integer(priority), new Integer(tolerance), new Integer(actors), left, writeroni };
-		this.send( new Message(this, this, "construct", __arguments, null, null) );
-		return this;
-	}
-
 	public UniversalActor construct() {
 		Object[] __arguments = { };
 		this.send( new Message(this, this, "construct", __arguments, null, null) );
@@ -187,11 +181,11 @@ public class Dude extends UniversalActor  {
 	}
 
 	public class State extends UniversalActor .State {
-		public Dude self;
+		public Writer self;
 		public void updateSelf(ActorReference actorReference) {
-			((Dude)actorReference).setUAL(getUAL());
-			((Dude)actorReference).setUAN(getUAN());
-			self = new Dude(false,getUAL());
+			((Writer)actorReference).setUAL(getUAL());
+			((Writer)actorReference).setUAN(getUAN());
+			self = new Writer(false,getUAL());
 			self.setUAN(getUAN());
 			self.setUAL(getUAL());
 			self.activateGC();
@@ -203,7 +197,7 @@ public class Dude extends UniversalActor  {
 
 		public State(UAN __uan, UAL __ual) {
 			super(__uan, __ual);
-			addClassName( "distributed.Dude$State" );
+			addClassName( "distributed.Writer$State" );
 			addMethodsForClasses();
 		}
 
@@ -264,155 +258,18 @@ public class Dude extends UniversalActor  {
 			}
 		}
 
-		int id;
-		String host;
-		int port;
-		int priority;
-		int tolerance;
-		int actors;
-		boolean active;
-		boolean pastLeader;
-		Writer writeroni;
-		Dude left;
-		void construct(int id, String host, int port, int priority, int tolerance, int actors, Dude left, Writer writeroni){
-			this.id = id;
-			this.host = host;
-			this.port = port;
-			this.priority = priority;
-			this.tolerance = tolerance;
-			this.actors = actors;
-			this.active = false;
-			this.pastLeader = false;
-			this.left = left;
-			this.writeroni = writeroni;
-		}
-		public void consider(int candidate, int canditatePriority, int timestamp, int elections) {
-			if (elections==actors) {{
-				{
-					// writeroni<-write("End of simulation")
-					{
-						Object _arguments[] = { "End of simulation" };
-						Message message = new Message( self, writeroni, "write", _arguments, null, null );
-						__messages.add( message );
-					}
-				}
+		public void write(String s) {
+			try {
+				FileWriter fw = new FileWriter("output.txt", true);
+				BufferedWriter bw = new BufferedWriter(fw);
+				bw.write(s);
+				bw.close();
+				fw.close();
 			}
-}			else {if (candidate==this.id) {{
-				active = true;
-				pastLeader = true;
-				{
-					// writeroni<-write("ID="+this.id+" became leader at t="+timestamp+"\n")
-					{
-						Object _arguments[] = { "ID="+this.id+" became leader at t="+timestamp+"\n" };
-						Message message = new Message( self, writeroni, "write", _arguments, null, null );
-						__messages.add( message );
-					}
-				}
-				{
-					// tick(timestamp, timestamp, this.id, 0, elections)
-					{
-						Object _arguments[] = { timestamp, timestamp, this.id, new Integer(0), elections };
-						Message message = new Message( self, self, "tick", _arguments, null, null );
-						__messages.add( message );
-					}
-				}
+			catch (IOException e) {
+				System.exit(1);
 			}
-}			else {{
-				if (canditatePriority>this.priority) {{
-					{
-						// this.left<-consider(candidate, canditatePriority, timestamp, elections)
-						{
-							Object _arguments[] = { candidate, canditatePriority, timestamp, elections };
-							Message message = new Message( self, this.left, "consider", _arguments, null, null );
-							__messages.add( message );
-						}
-					}
-				}
-}				else {if (!pastLeader) {{
-					{
-						// this.left<-consider(this.id, this.priority, timestamp, elections)
-						{
-							Object _arguments[] = { this.id, this.priority, timestamp, elections };
-							Message message = new Message( self, this.left, "consider", _arguments, null, null );
-							__messages.add( message );
-						}
-					}
-				}
-}				else {{
-					{
-						// this.left<-consider(candidate, canditatePriority, timestamp, elections)
-						{
-							Object _arguments[] = { candidate, canditatePriority, timestamp, elections };
-							Message message = new Message( self, this.left, "consider", _arguments, null, null );
-							__messages.add( message );
-						}
-					}
-				}
-}}			}
-}}		}
-		public void tick(int timestamp, int electionTime, int presidentID, int revolts, int elections) {
-			if (presidentID==this.id) {{
-				if (revolts>((actors-1)/2)) {{
-					{
-						// writeroni<-write("ID="+this.id+" was deposed at t="+timestamp+"\n")
-						{
-							Object _arguments[] = { "ID="+this.id+" was deposed at t="+timestamp+"\n" };
-							Message message = new Message( self, writeroni, "write", _arguments, null, null );
-							__messages.add( message );
-						}
-					}
-					active = false;
-					{
-						// consider(-1, -1, timestamp+1, elections+1)
-						{
-							Object _arguments[] = { new Integer(-1), new Integer(-1), timestamp+1, elections+1 };
-							Message message = new Message( self, self, "consider", _arguments, null, null );
-							__messages.add( message );
-						}
-					}
-				}
-}				else {{
-					{
-						// left<-tick(timestamp+1, electionTime, presidentID, revolts, elections)
-						{
-							Object _arguments[] = { timestamp+1, electionTime, presidentID, revolts, elections };
-							Message message = new Message( self, left, "tick", _arguments, null, null );
-							__messages.add( message );
-						}
-					}
-				}
-}			}
-}			else {if (timestamp-electionTime>tolerance&&timestamp-electionTime-actors<tolerance) {{
-				{
-					// writeroni<-write("ID="+this.id+" revolted at t="+timestamp+"\n")
-					{
-						Object _arguments[] = { "ID="+this.id+" revolted at t="+timestamp+"\n" };
-						Message message = new Message( self, writeroni, "write", _arguments, null, null );
-						__messages.add( message );
-					}
-				}
-				{
-					// left<-tick(timestamp+1, electionTime, presidentID, revolts+1, elections)
-					{
-						Object _arguments[] = { timestamp+1, electionTime, presidentID, revolts+1, elections };
-						Message message = new Message( self, left, "tick", _arguments, null, null );
-						__messages.add( message );
-					}
-				}
-			}
-}			else {{
-				{
-					// left<-tick(timestamp+1, electionTime, presidentID, revolts, elections)
-					{
-						Object _arguments[] = { timestamp+1, electionTime, presidentID, revolts, elections };
-						Message message = new Message( self, left, "tick", _arguments, null, null );
-						__messages.add( message );
-					}
-				}
-			}
-}}		}
-		public void setLeft(Dude left) {
-			this.left = left;
+
 		}
 	}
 }

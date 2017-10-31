@@ -269,6 +269,7 @@ public class Run extends UniversalActor  {
 		public void act(String[] args) {
 			ArrayList actors = new ArrayList();
 			ArrayList lines = new ArrayList();
+			Writer writer = ((Writer)new Writer(this).construct());
 			try {
 				FileWriter fw = new FileWriter("output.txt");
 				fw.close();
@@ -297,11 +298,11 @@ public class Run extends UniversalActor  {
 			for (int a = 0; a<lines.size(); a++){
 				String[] bits = ((String)lines.get(a)).split("\t");
 				if (actors.size()==0) {{
-					Dude temp = ((Dude)new Dude(new UAN("uan://"+bits[1]+"/a"+a), new UAL("rmsp://"+bits[1]+":"+bits[2]+"/"+a),this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), lines.size(), null));
+					Dude temp = ((Dude)new Dude(new UAN("uan://"+bits[1]+"/a"+a), new UAL("rmsp://"+bits[1]+":"+bits[2]+"/"+a),this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), lines.size(), null, writer));
 					actors.add(temp);
 				}
 }				else {{
-					Dude temp = ((Dude)new Dude(new UAN("uan://"+bits[1]+"/a"+a), new UAL("rmsp://"+bits[1]+":"+bits[2]+"/"+a),this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), lines.size(), (Dude)actors.get(actors.size()-1)));
+					Dude temp = ((Dude)new Dude(new UAN("uan://"+bits[1]+"/a"+a), new UAL("rmsp://"+bits[1]+":"+bits[2]+"/"+a),this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), lines.size(), (Dude)actors.get(actors.size()-1), writer));
 					actors.add(temp);
 				}
 }			}
