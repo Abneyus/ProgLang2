@@ -34,7 +34,7 @@ import salsa.resources.ActorService;
 import java.io.*;
 import java.util.*;
 
-public class Run extends UniversalActor  {
+public class Run extends UniversalActor  implements ActorService {
 	public static void main(String args[]) {
 		UAN uan = null;
 		UAL ual = null;
@@ -68,18 +68,11 @@ public class Run extends UniversalActor  {
 			}
 			ual = new UAL( ServiceFactory.getTheater().getLocation() + System.getProperty("identifier"));
 		}
-		RunTime.receivedMessage();
 		Run instance = (Run)new Run(uan, ual,null).construct();
-		gc.WeakReference instanceRef=new gc.WeakReference(uan,ual);
 		{
 			Object[] _arguments = { args };
-
-			//preAct() for local actor creation
-			//act() for remote actor creation
-			if (ual != null && !ual.getLocation().equals(ServiceFactory.getTheater().getLocation())) {instance.send( new Message(instanceRef, instanceRef, "act", _arguments, false) );}
-			else {instance.send( new Message(instanceRef, instanceRef, "preAct", _arguments, false) );}
+			instance.send( new Message(instance, instance, "act", _arguments, null, null) );
 		}
-		RunTime.finishedProcessingMessage();
 	}
 
 	public static ActorReference getReferenceByName(UAN uan)	{ return new Run(false, uan); }
@@ -89,88 +82,19 @@ public class Run extends UniversalActor  {
 	public static ActorReference getReferenceByLocation(String ual)	{ return Run.getReferenceByLocation(new UAL(ual)); }
 	public Run(boolean o, UAN __uan)	{ super(false,__uan); }
 	public Run(boolean o, UAL __ual)	{ super(false,__ual); }
-	public Run(UAN __uan,UniversalActor.State sourceActor)	{ this(__uan, null, sourceActor); }
-	public Run(UAL __ual,UniversalActor.State sourceActor)	{ this(null, __ual, sourceActor); }
-	public Run(UniversalActor.State sourceActor)		{ this(null, null, sourceActor);  }
+
+	public Run(UAN __uan,UniversalActor.State sourceActor)	{ this(__uan, null,null); }
+	public Run(UAL __ual,UniversalActor.State sourceActor)	{ this(null, __ual,null); }
+	public Run(UniversalActor.State sourceActor)		{ this(null, null,null);  }
 	public Run()		{  }
-	public Run(UAN __uan, UAL __ual, Object obj) {
-		//decide the type of sourceActor
-		//if obj is null, the actor must be the startup actor.
-		//if obj is an actorReference, this actor is created by a remote actor
-
-		if (obj instanceof UniversalActor.State || obj==null) {
-			  UniversalActor.State sourceActor;
-			  if (obj!=null) { sourceActor=(UniversalActor.State) obj;}
-			  else {sourceActor=null;}
-
-			  //remote creation message sent to a remote system service.
-			  if (__ual != null && !__ual.getLocation().equals(ServiceFactory.getTheater().getLocation())) {
-			    WeakReference sourceRef;
-			    if (sourceActor!=null && sourceActor.getUAL() != null) {sourceRef = new WeakReference(sourceActor.getUAN(),sourceActor.getUAL());}
-			    else {sourceRef = null;}
-			    if (sourceActor != null) {
-			      if (__uan != null) {sourceActor.getActorMemory().getForwardList().putReference(__uan);}
-			      else if (__ual!=null) {sourceActor.getActorMemory().getForwardList().putReference(__ual);}
-
-			      //update the source of this actor reference
-			      setSource(sourceActor.getUAN(), sourceActor.getUAL());
-			      activateGC();
-			    }
-			    createRemotely(__uan, __ual, "distributed.Run", sourceRef);
-			  }
-
-			  // local creation
-			  else {
-			    State state = new State(__uan, __ual);
-
-			    //assume the reference is weak
-			    muteGC();
-
-			    //the source actor is  the startup actor
-			    if (sourceActor == null) {
-			      state.getActorMemory().getInverseList().putInverseReference("rmsp://me");
-			    }
-
-			    //the souce actor is a normal actor
-			    else if (sourceActor instanceof UniversalActor.State) {
-
-			      // this reference is part of garbage collection
-			      activateGC();
-
-			      //update the source of this actor reference
-			      setSource(sourceActor.getUAN(), sourceActor.getUAL());
-
-			      /* Garbage collection registration:
-			       * register 'this reference' in sourceActor's forward list @
-			       * register 'this reference' in the forward acquaintance's inverse list
-			       */
-			      String inverseRefString=null;
-			      if (sourceActor.getUAN()!=null) {inverseRefString=sourceActor.getUAN().toString();}
-			      else if (sourceActor.getUAL()!=null) {inverseRefString=sourceActor.getUAL().toString();}
-			      if (__uan != null) {sourceActor.getActorMemory().getForwardList().putReference(__uan);}
-			      else if (__ual != null) {sourceActor.getActorMemory().getForwardList().putReference(__ual);}
-			      else {sourceActor.getActorMemory().getForwardList().putReference(state.getUAL());}
-
-			      //put the inverse reference information in the actormemory
-			      if (inverseRefString!=null) state.getActorMemory().getInverseList().putInverseReference(inverseRefString);
-			    }
-			    state.updateSelf(this);
-			    ServiceFactory.getNaming().setEntry(state.getUAN(), state.getUAL(), state);
-			    if (getUAN() != null) ServiceFactory.getNaming().update(state.getUAN(), state.getUAL());
-			  }
-		}
-
-		//creation invoked by a remote message
-		else if (obj instanceof ActorReference) {
-			  ActorReference sourceRef= (ActorReference) obj;
-			  State state = new State(__uan, __ual);
-			  muteGC();
-			  state.getActorMemory().getInverseList().putInverseReference("rmsp://me");
-			  if (sourceRef.getUAN() != null) {state.getActorMemory().getInverseList().putInverseReference(sourceRef.getUAN());}
-			  else if (sourceRef.getUAL() != null) {state.getActorMemory().getInverseList().putInverseReference(sourceRef.getUAL());}
-			  state.updateSelf(this);
-			  ServiceFactory.getNaming().setEntry(state.getUAN(), state.getUAL(),state);
-			  if (getUAN() != null) ServiceFactory.getNaming().update(state.getUAN(), state.getUAL());
+	public Run(UAN __uan, UAL __ual,Object sourceActor) {
+		if (__ual != null && !__ual.getLocation().equals(ServiceFactory.getTheater().getLocation())) {
+			createRemotely(__uan, __ual, "distributed.Run");
+		} else {
+			State state = new State(__uan, __ual);
+			state.updateSelf(this);
+			ServiceFactory.getNaming().setEntry(state.getUAN(), state.getUAL(), state);
+			if (getUAN() != null) ServiceFactory.getNaming().update(state.getUAN(), state.getUAL());
 		}
 	}
 
@@ -180,7 +104,7 @@ public class Run extends UniversalActor  {
 		return this;
 	}
 
-	public class State extends UniversalActor .State {
+	public class State extends UniversalActor .State implements salsa.resources.ActorServiceState {
 		public Run self;
 		public void updateSelf(ActorReference actorReference) {
 			((Run)actorReference).setUAL(getUAL());
@@ -188,15 +112,7 @@ public class Run extends UniversalActor  {
 			self = new Run(false,getUAL());
 			self.setUAN(getUAN());
 			self.setUAL(getUAL());
-			self.activateGC();
-		}
-
-		public void preAct(String[] arguments) {
-			getActorMemory().getInverseList().removeInverseReference("rmsp://me",1);
-			{
-				Object[] __args={arguments};
-				self.send( new Message(self,self, "act", __args, null,null,false) );
-			}
+			self.muteGC();
 		}
 
 		public State() {
@@ -270,6 +186,7 @@ public class Run extends UniversalActor  {
 			ArrayList actors = new ArrayList();
 			ArrayList lines = new ArrayList();
 			Writer writer = ((Writer)new Writer(this).construct());
+			String nameServer = args[1];
 			try {
 				FileWriter fw = new FileWriter("output.txt");
 				fw.close();
@@ -298,11 +215,11 @@ public class Run extends UniversalActor  {
 			for (int a = 0; a<lines.size(); a++){
 				String[] bits = ((String)lines.get(a)).split("\t");
 				if (actors.size()==0) {{
-					Dude temp = ((Dude)new Dude(new UAN("uan://"+bits[1]+"/a"+a), new UAL("rmsp://"+bits[1]+":"+bits[2]+"/"+a),this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), lines.size(), null, writer));
+					Dude temp = ((Dude)new Dude(new UAN("uan://"+nameServer+"/"+bits[0]), new UAL("rmsp://"+bits[1]+":"+bits[2]+"/"+a),this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), lines.size(), null, writer));
 					actors.add(temp);
 				}
 }				else {{
-					Dude temp = ((Dude)new Dude(new UAN("uan://"+bits[1]+"/a"+a), new UAL("rmsp://"+bits[1]+":"+bits[2]+"/"+a),this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), lines.size(), (Dude)actors.get(actors.size()-1), writer));
+					Dude temp = ((Dude)new Dude(new UAN("uan://"+nameServer+"/"+bits[0]), new UAL("rmsp://"+bits[1]+":"+bits[2]+"/"+a),this).construct(Integer.parseInt(bits[0]), bits[1], Integer.parseInt(bits[2]), Integer.parseInt(bits[3]), Integer.parseInt(bits[4]), lines.size(), (Dude)actors.get(actors.size()-1), writer));
 					actors.add(temp);
 				}
 }			}

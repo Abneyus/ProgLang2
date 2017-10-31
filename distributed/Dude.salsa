@@ -3,7 +3,7 @@ module distributed;
 import java.io.*;
 import java.util.*;
 
-behavior Dude{
+behavior Dude implements ActorService {
   int id;
   String host;
   int port;

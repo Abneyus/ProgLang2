@@ -3,14 +3,18 @@ module distributed;
 import java.io.*;
 import java.util.*;
 
-behavior Run {
+behavior Run implements ActorService {
+  //implements ActorService
 
   void act(String[] args)
   {
+    //self.muteGC();
     ArrayList actors = new ArrayList();
     ArrayList lines = new ArrayList();
 
     Writer writer = new Writer();
+
+    String nameServer = args[1];
 
     try
     {
@@ -51,7 +55,7 @@ behavior Run {
                   lines.size(),
                   null,
                   writer)
-                  at (new UAN("uan://" + bits[1] + "/a"+a),
+                  at (new UAN("uan://" + nameServer +"/"+ bits[0]),
                   new UAL("rmsp://" + bits[1] + ":" + bits[2] + "/" + a));
         actors.add(temp);
       }
@@ -65,7 +69,7 @@ behavior Run {
                   lines.size(),
                   (Dude) actors.get(actors.size()-1),
                   writer)
-                  at (new UAN("uan://" + bits[1] + "/a"+a),
+                  at (new UAN("uan://" + nameServer +"/"+ bits[0]),
                   new UAL("rmsp://" + bits[1] + ":" + bits[2] + "/" + a));
         actors.add(temp);
       }
