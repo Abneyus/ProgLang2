@@ -38,7 +38,7 @@ behavior Dude{
   {
     if(elections == actors)
     {
-      writeMessage("End of simulation");
+      writeroni <- write("End of simulation");
     }
     else if(candidate == this.id)
     {

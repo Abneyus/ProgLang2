@@ -289,10 +289,10 @@ public class Dude extends UniversalActor  {
 		public void consider(int candidate, int canditatePriority, int timestamp, int elections) {
 			if (elections==actors) {{
 				{
-					// writeMessage("End of simulation")
+					// writeroni<-write("End of simulation")
 					{
 						Object _arguments[] = { "End of simulation" };
-						Message message = new Message( self, self, "writeMessage", _arguments, null, null );
+						Message message = new Message( self, writeroni, "write", _arguments, null, null );
 						__messages.add( message );
 					}
 				}
