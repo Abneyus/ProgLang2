@@ -1,0 +1,89 @@
+module distributed;
+
+import java.io.*;
+import java.util.*;
+
+behavior Russia
+{
+
+  ArrayList actors;
+  int timestamp;
+  int elections;
+
+  // Tells each actor to start radial growth.
+  void radialGrowth()
+  {
+    for(int a = 0; a < actors.size(); a++)
+    {
+      actors.get(a) <- beginGrowth(actors.get(a));
+    }
+  }
+
+  // Always called first, sets up member variables appropriately.
+  // Tells each actor to start radial growth.
+  void radialGrowth(ArrayList actors)
+  {
+    timestamp = 0;
+    elections = 0;
+    this.actors = actors;
+    for(int a = 0; a < actors.size(); a++)
+    {
+      actors.get(a) <- beginGrowth(actors.get(a));
+    }
+  }
+
+  // Called when it is decided which actor is to be elected.
+  // Special consideration is given to the first leader elected as that does not take
+  // time.
+  // Subsequently has the elected candidate start its election cycle, waiting to be
+  // deposed.
+  void election(Dude candidate, int candidateID)
+  {
+    elections+=1;
+    if(timestamp == 0)
+    {
+      writeMessage("ID=" + candidateID + " became leader at t=" + timestamp + "\n");
+    }
+    else
+    {
+      timestamp+=1;
+      writeMessage("ID=" + candidateID + " became leader at t=" + timestamp + "\n");
+    }
+
+    candidate <- tick(timestamp, timestamp, candidateID, 0);
+  }
+
+  // Called when an actor gets deposed. Updates timestamps and determines if it is
+  // time to end the simulation.
+  void depose(int candidateID, int timestamp)
+  {
+    this.timestamp = timestamp;
+    writeMessage("ID=" + candidateID + " was deposed at t=" + timestamp + "\n");
+    if(elections == actors.size())
+    {
+      writeMessage("End of simulation");
+    }
+    else
+    {
+      radialGrowth();
+    }
+  }
+
+  // Simple message writing helper function.
+  void writeMessage(String toWrite)
+  {
+    try
+    {
+      FileWriter fw = new FileWriter("output.txt", true);
+      BufferedWriter bw = new BufferedWriter(fw);
+      bw.write(toWrite);
+      bw.close();
+      fw.close();
+    }
+    catch (IOException e)
+    {
+      standardOutput<-println("[error] Writing to output.txt file");
+      return;
+    }
+  }
+}

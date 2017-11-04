@@ -3,7 +3,7 @@ module distributed;
 import java.io.*;
 import java.util.*;
 
-behavior Dude implements ActorService {
+behavior Dude{
   int id;
   String host;
   int port;
@@ -11,14 +11,14 @@ behavior Dude implements ActorService {
   int tolerance;
   int actors;
 
-  boolean active;
+  int replies;
+
   boolean pastLeader;
 
-  Writer writeroni;
-
   Dude left;
+  Russia supervisor;
 
-  Dude(int id, String host, int port, int priority, int tolerance, int actors, Dude left, Writer writeroni) {
+  Dude(int id, String host, int port, int priority, int tolerance, int actors, Dude left, Russia supervisor) {
     this.id = id;
     this.host = host;
     this.port = port;
@@ -26,67 +26,92 @@ behavior Dude implements ActorService {
     this.tolerance = tolerance;
     this.actors = actors;
 
-    this.active = false;
     this.pastLeader = false;
 
     this.left = left;
-
-    this.writeroni = writeroni;
+    this.supervisor = supervisor;
   }
 
-  void consider(int candidate, int canditatePriority, int timestamp, int elections)
+  // Called at the beginning of radial growth. Resets replies variable and ignores request if the actor
+  // has already been a leader.
+  void beginGrowth(Dude candidate)
   {
-    if(elections == actors)
+    replies = 0;
+    if(!pastLeader)
     {
-      writeroni <- write("End of simulation");
+        left <- RadialGrowth(candidate, id, priority, 1, true);
     }
-    else if(candidate == this.id)
+  }
+
+  // Reads in a reply to a radial growth message and if the leader bit is true, expand
+  // the campaign. If false, stop.
+  void RadialReply(Dude candidate, int candidateID, int candidatePriority, boolean leader)
+  {
+    replies+=1;
+    if(leader)
+      left <- RadialGrowth(candidate, candidateID, candidatePriority, (int)Math.pow(2, replies), leader);
+  }
+
+  // The main logic for radial growth. Asks neighbors (only left) if the current node is a good candidate.
+  // Neighbors either pass along the message or respond to the original candidate telling them to keep
+  // campaigning or stop.
+  void RadialGrowth(Dude candidate, int candidateID, int candidatePriority, int TTL, boolean leader)
+  {
+    if(id == candidateID)
     {
-      active = true;
       pastLeader = true;
-      writeroni <- write("ID=" + this.id + " became leader at t=" + timestamp + "\n");
-      tick(timestamp, timestamp, this.id, 0, elections);
+      supervisor <- election(candidate, candidateID);
+    }
+    else if (TTL-1 == 0)
+    {
+      candidate <- RadialReply(candidate, candidateID, candidatePriority, leader);
     }
     else
     {
-      if(canditatePriority > this.priority)
+      if(priority > candidatePriority)
       {
-        this.left <- consider(candidate, canditatePriority, timestamp, elections);
-      }
-      else if(!pastLeader)
-      {
-        this.left <- consider(this.id, this.priority, timestamp, elections);
+        // The current candidate is better than the proposed.
+        if(!pastLeader)
+        {
+          candidate <- RadialReply(candidate, candidateID, candidatePriority, false);
+        }
+        else
+        {
+          left <- RadialGrowth(candidate, candidateID, candidatePriority, TTL-1, leader);
+        }
       }
       else
       {
-        this.left <- consider(candidate, canditatePriority, timestamp, elections);
+        left <- RadialGrowth(candidate, candidateID, candidatePriority, TTL-1, leader);
       }
     }
   }
 
-  void tick(int timestamp, int electionTime, int presidentID, int revolts, int elections)
+  // The election cycle, keeps track of revolts and determines if its time to be
+  // deposed. Only when the president recieves its own message does it send
+  // another.
+  void tick(int timestamp, int electionTime, int presidentID, int revolts)
   {
     if(presidentID == this.id)
     {
       if(revolts > ((actors-1)/2))
       {
-        writeroni <- write("ID=" + this.id + " was deposed at t=" + timestamp + "\n");
-        active = false;
-        consider(-1, -1, timestamp+1, elections+1);
+        supervisor <- depose(this.id, timestamp);
       }
       else
       {
-        left <- tick(timestamp+1, electionTime, presidentID, revolts, elections);
+        left <- tick(timestamp+1, electionTime, presidentID, revolts);
       }
     }
+    // Revolts if its tolerance is exceeded but only the first time.
     else if(timestamp - electionTime > tolerance && timestamp - electionTime - actors < tolerance)
     {
-      writeroni <- write("ID=" + this.id + " revolted at t=" + timestamp + "\n");
-      left <- tick(timestamp+1, electionTime, presidentID, revolts+1, elections);
+      supervisor <- writeMessage("ID=" + this.id + " revolted at t=" + timestamp + "\n");
+      left <- tick(timestamp+1, electionTime, presidentID, revolts+1);
     }
     else
     {
-      left <- tick(timestamp+1, electionTime, presidentID, revolts, elections);
+      left <- tick(timestamp+1, electionTime, presidentID, revolts);
     }
   }
 

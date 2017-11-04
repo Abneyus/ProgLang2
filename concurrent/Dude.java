@@ -174,8 +174,8 @@ public class Dude extends UniversalActor  {
 		}
 	}
 
-	public UniversalActor construct (int id, String host, int port, int priority, int tolerance, int actors, Dude left) {
-		Object[] __arguments = { new Integer(id), host, new Integer(port), new Integer(priority), new Integer(tolerance), new Integer(actors), left };
+	public UniversalActor construct (int id, String host, int port, int priority, int tolerance, int actors, Dude left, Russia supervisor) {
+		Object[] __arguments = { new Integer(id), host, new Integer(port), new Integer(priority), new Integer(tolerance), new Integer(actors), left, supervisor };
 		this.send( new Message(this, this, "construct", __arguments, null, null) );
 		return this;
 	}
@@ -270,110 +270,119 @@ public class Dude extends UniversalActor  {
 		int priority;
 		int tolerance;
 		int actors;
-		boolean active;
+		int replies;
 		boolean pastLeader;
 		Dude left;
-		void construct(int id, String host, int port, int priority, int tolerance, int actors, Dude left){
+		Russia supervisor;
+		void construct(int id, String host, int port, int priority, int tolerance, int actors, Dude left, Russia supervisor){
 			this.id = id;
 			this.host = host;
 			this.port = port;
 			this.priority = priority;
 			this.tolerance = tolerance;
 			this.actors = actors;
-			this.active = false;
 			this.pastLeader = false;
 			this.left = left;
+			this.supervisor = supervisor;
 		}
-		public void consider(int candidate, int canditatePriority, int timestamp, int elections) {
-			if (elections==actors) {{
+		public void beginGrowth(Dude candidate) {
+			replies = 0;
+			if (!pastLeader) {{
 				{
-					// writeMessage("End of simulation")
+					// left<-RadialGrowth(candidate, id, priority, 1, true)
 					{
-						Object _arguments[] = { "End of simulation" };
-						Message message = new Message( self, self, "writeMessage", _arguments, null, null );
+						Object _arguments[] = { candidate, id, priority, new Integer(1), true };
+						Message message = new Message( self, left, "RadialGrowth", _arguments, null, null );
 						__messages.add( message );
 					}
 				}
 			}
-}			else {if (candidate==this.id) {{
-				active = true;
+}		}
+		public void RadialReply(Dude candidate, int candidateID, int candidatePriority, boolean leader) {
+			replies += 1;
+			if (leader) {			{
+				// left<-RadialGrowth(candidate, candidateID, candidatePriority, (int)Math.pow(2, replies), leader)
+				{
+					Object _arguments[] = { candidate, candidateID, candidatePriority, (int)Math.pow(2, replies), leader };
+					Message message = new Message( self, left, "RadialGrowth", _arguments, null, null );
+					__messages.add( message );
+				}
+			}
+}		}
+		public void RadialGrowth(Dude candidate, int candidateID, int candidatePriority, int TTL, boolean leader) {
+			if (id==candidateID) {{
 				pastLeader = true;
 				{
-					// writeMessage("ID="+this.id+" became leader at t="+timestamp+"\n")
+					// supervisor<-election(candidate, candidateID)
 					{
-						Object _arguments[] = { "ID="+this.id+" became leader at t="+timestamp+"\n" };
-						Message message = new Message( self, self, "writeMessage", _arguments, null, null );
+						Object _arguments[] = { candidate, candidateID };
+						Message message = new Message( self, supervisor, "election", _arguments, null, null );
 						__messages.add( message );
 					}
 				}
+			}
+}			else {if (TTL-1==0) {{
 				{
-					// tick(timestamp, timestamp, this.id, 0, elections)
+					// candidate<-RadialReply(candidate, candidateID, candidatePriority, leader)
 					{
-						Object _arguments[] = { timestamp, timestamp, this.id, new Integer(0), elections };
-						Message message = new Message( self, self, "tick", _arguments, null, null );
+						Object _arguments[] = { candidate, candidateID, candidatePriority, leader };
+						Message message = new Message( self, candidate, "RadialReply", _arguments, null, null );
 						__messages.add( message );
 					}
 				}
 			}
 }			else {{
-				if (canditatePriority>this.priority) {{
-					{
-						// this.left<-consider(candidate, canditatePriority, timestamp, elections)
+				if (priority>candidatePriority) {{
+					if (!pastLeader) {{
 						{
-							Object _arguments[] = { candidate, canditatePriority, timestamp, elections };
-							Message message = new Message( self, this.left, "consider", _arguments, null, null );
-							__messages.add( message );
+							// candidate<-RadialReply(candidate, candidateID, candidatePriority, false)
+							{
+								Object _arguments[] = { candidate, candidateID, candidatePriority, false };
+								Message message = new Message( self, candidate, "RadialReply", _arguments, null, null );
+								__messages.add( message );
+							}
 						}
 					}
-				}
-}				else {if (!pastLeader) {{
-					{
-						// this.left<-consider(this.id, this.priority, timestamp, elections)
+}					else {{
 						{
-							Object _arguments[] = { this.id, this.priority, timestamp, elections };
-							Message message = new Message( self, this.left, "consider", _arguments, null, null );
-							__messages.add( message );
+							// left<-RadialGrowth(candidate, candidateID, candidatePriority, TTL-1, leader)
+							{
+								Object _arguments[] = { candidate, candidateID, candidatePriority, TTL-1, leader };
+								Message message = new Message( self, left, "RadialGrowth", _arguments, null, null );
+								__messages.add( message );
+							}
 						}
 					}
-				}
+}				}
 }				else {{
 					{
-						// this.left<-consider(candidate, canditatePriority, timestamp, elections)
+						// left<-RadialGrowth(candidate, candidateID, candidatePriority, TTL-1, leader)
 						{
-							Object _arguments[] = { candidate, canditatePriority, timestamp, elections };
-							Message message = new Message( self, this.left, "consider", _arguments, null, null );
+							Object _arguments[] = { candidate, candidateID, candidatePriority, TTL-1, leader };
+							Message message = new Message( self, left, "RadialGrowth", _arguments, null, null );
 							__messages.add( message );
 						}
 					}
 				}
-}}			}
+}			}
 }}		}
-		public void tick(int timestamp, int electionTime, int presidentID, int revolts, int elections) {
+		public void tick(int timestamp, int electionTime, int presidentID, int revolts) {
 			if (presidentID==this.id) {{
 				if (revolts>((actors-1)/2)) {{
 					{
-						// writeMessage("ID="+this.id+" was deposed at t="+timestamp+"\n")
+						// supervisor<-depose(this.id, timestamp)
 						{
-							Object _arguments[] = { "ID="+this.id+" was deposed at t="+timestamp+"\n" };
-							Message message = new Message( self, self, "writeMessage", _arguments, null, null );
-							__messages.add( message );
-						}
-					}
-					active = false;
-					{
-						// consider(-1, -1, timestamp+1, elections+1)
-						{
-							Object _arguments[] = { new Integer(-1), new Integer(-1), timestamp+1, elections+1 };
-							Message message = new Message( self, self, "consider", _arguments, null, null );
+							Object _arguments[] = { this.id, timestamp };
+							Message message = new Message( self, supervisor, "depose", _arguments, null, null );
 							__messages.add( message );
 						}
 					}
 				}
 }				else {{
 					{
-						// left<-tick(timestamp+1, electionTime, presidentID, revolts, elections)
+						// left<-tick(timestamp+1, electionTime, presidentID, revolts)
 						{
-							Object _arguments[] = { timestamp+1, electionTime, presidentID, revolts, elections };
+							Object _arguments[] = { timestamp+1, electionTime, presidentID, revolts };
 							Message message = new Message( self, left, "tick", _arguments, null, null );
 							__messages.add( message );
 						}
@@ -382,17 +391,17 @@ public class Dude extends UniversalActor  {
 }			}
 }			else {if (timestamp-electionTime>tolerance&&timestamp-electionTime-actors<tolerance) {{
 				{
-					// writeMessage("ID="+this.id+" revolted at t="+timestamp+"\n")
+					// supervisor<-writeMessage("ID="+this.id+" revolted at t="+timestamp+"\n")
 					{
 						Object _arguments[] = { "ID="+this.id+" revolted at t="+timestamp+"\n" };
-						Message message = new Message( self, self, "writeMessage", _arguments, null, null );
+						Message message = new Message( self, supervisor, "writeMessage", _arguments, null, null );
 						__messages.add( message );
 					}
 				}
 				{
-					// left<-tick(timestamp+1, electionTime, presidentID, revolts+1, elections)
+					// left<-tick(timestamp+1, electionTime, presidentID, revolts+1)
 					{
-						Object _arguments[] = { timestamp+1, electionTime, presidentID, revolts+1, elections };
+						Object _arguments[] = { timestamp+1, electionTime, presidentID, revolts+1 };
 						Message message = new Message( self, left, "tick", _arguments, null, null );
 						__messages.add( message );
 					}
@@ -400,28 +409,15 @@ public class Dude extends UniversalActor  {
 			}
 }			else {{
 				{
-					// left<-tick(timestamp+1, electionTime, presidentID, revolts, elections)
+					// left<-tick(timestamp+1, electionTime, presidentID, revolts)
 					{
-						Object _arguments[] = { timestamp+1, electionTime, presidentID, revolts, elections };
+						Object _arguments[] = { timestamp+1, electionTime, presidentID, revolts };
 						Message message = new Message( self, left, "tick", _arguments, null, null );
 						__messages.add( message );
 					}
 				}
 			}
 }}		}
-		public void writeMessage(String temp) {
-			try {
-				FileWriter fw = new FileWriter("output.txt", true);
-				BufferedWriter bw = new BufferedWriter(fw);
-				bw.write(temp);
-				bw.close();
-				fw.close();
-			}
-			catch (IOException e) {
-				return;
-			}
-
-		}
 		public void setLeft(Dude left) {
 			this.left = left;
 		}

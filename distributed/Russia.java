@@ -34,7 +34,7 @@ import salsa.resources.ActorService;
 import java.io.*;
 import java.util.*;
 
-public class Writer extends UniversalActor  {
+public class Russia extends UniversalActor  {
 	public static void main(String args[]) {
 		UAN uan = null;
 		UAL ual = null;
@@ -69,7 +69,7 @@ public class Writer extends UniversalActor  {
 			ual = new UAL( ServiceFactory.getTheater().getLocation() + System.getProperty("identifier"));
 		}
 		RunTime.receivedMessage();
-		Writer instance = (Writer)new Writer(uan, ual,null).construct();
+		Russia instance = (Russia)new Russia(uan, ual,null).construct();
 		gc.WeakReference instanceRef=new gc.WeakReference(uan,ual);
 		{
 			Object[] _arguments = { args };
@@ -82,18 +82,18 @@ public class Writer extends UniversalActor  {
 		RunTime.finishedProcessingMessage();
 	}
 
-	public static ActorReference getReferenceByName(UAN uan)	{ return new Writer(false, uan); }
-	public static ActorReference getReferenceByName(String uan)	{ return Writer.getReferenceByName(new UAN(uan)); }
-	public static ActorReference getReferenceByLocation(UAL ual)	{ return new Writer(false, ual); }
+	public static ActorReference getReferenceByName(UAN uan)	{ return new Russia(false, uan); }
+	public static ActorReference getReferenceByName(String uan)	{ return Russia.getReferenceByName(new UAN(uan)); }
+	public static ActorReference getReferenceByLocation(UAL ual)	{ return new Russia(false, ual); }
 
-	public static ActorReference getReferenceByLocation(String ual)	{ return Writer.getReferenceByLocation(new UAL(ual)); }
-	public Writer(boolean o, UAN __uan)	{ super(false,__uan); }
-	public Writer(boolean o, UAL __ual)	{ super(false,__ual); }
-	public Writer(UAN __uan,UniversalActor.State sourceActor)	{ this(__uan, null, sourceActor); }
-	public Writer(UAL __ual,UniversalActor.State sourceActor)	{ this(null, __ual, sourceActor); }
-	public Writer(UniversalActor.State sourceActor)		{ this(null, null, sourceActor);  }
-	public Writer()		{  }
-	public Writer(UAN __uan, UAL __ual, Object obj) {
+	public static ActorReference getReferenceByLocation(String ual)	{ return Russia.getReferenceByLocation(new UAL(ual)); }
+	public Russia(boolean o, UAN __uan)	{ super(false,__uan); }
+	public Russia(boolean o, UAL __ual)	{ super(false,__ual); }
+	public Russia(UAN __uan,UniversalActor.State sourceActor)	{ this(__uan, null, sourceActor); }
+	public Russia(UAL __ual,UniversalActor.State sourceActor)	{ this(null, __ual, sourceActor); }
+	public Russia(UniversalActor.State sourceActor)		{ this(null, null, sourceActor);  }
+	public Russia()		{  }
+	public Russia(UAN __uan, UAL __ual, Object obj) {
 		//decide the type of sourceActor
 		//if obj is null, the actor must be the startup actor.
 		//if obj is an actorReference, this actor is created by a remote actor
@@ -116,7 +116,7 @@ public class Writer extends UniversalActor  {
 			      setSource(sourceActor.getUAN(), sourceActor.getUAL());
 			      activateGC();
 			    }
-			    createRemotely(__uan, __ual, "distributed.Writer", sourceRef);
+			    createRemotely(__uan, __ual, "distributed.Russia", sourceRef);
 			  }
 
 			  // local creation
@@ -181,11 +181,11 @@ public class Writer extends UniversalActor  {
 	}
 
 	public class State extends UniversalActor .State {
-		public Writer self;
+		public Russia self;
 		public void updateSelf(ActorReference actorReference) {
-			((Writer)actorReference).setUAL(getUAL());
-			((Writer)actorReference).setUAN(getUAN());
-			self = new Writer(false,getUAL());
+			((Russia)actorReference).setUAL(getUAL());
+			((Russia)actorReference).setUAN(getUAN());
+			self = new Russia(false,getUAL());
 			self.setUAN(getUAN());
 			self.setUAL(getUAL());
 			self.activateGC();
@@ -197,7 +197,7 @@ public class Writer extends UniversalActor  {
 
 		public State(UAN __uan, UAL __ual) {
 			super(__uan, __ual);
-			addClassName( "distributed.Writer$State" );
+			addClassName( "distributed.Russia$State" );
 			addMethodsForClasses();
 		}
 
@@ -258,16 +258,117 @@ public class Writer extends UniversalActor  {
 			}
 		}
 
-		public void write(String s) {
+		ArrayList actors;
+		int timestamp;
+		int elections;
+		public void radialGrowth() {
+			for (int a = 0; a<actors.size(); a++){
+				{
+					// actors.get(a)<-beginGrowth(actors.get(a))
+					{
+						Object _arguments[] = { actors.get(a) };
+						Message message = new Message( self, actors.get(a), "beginGrowth", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+			}
+		}
+		public void radialGrowth(ArrayList actors) {
+			timestamp = 0;
+			elections = 0;
+			this.actors = actors;
+			for (int a = 0; a<actors.size(); a++){
+				{
+					// actors.get(a)<-beginGrowth(actors.get(a))
+					{
+						Object _arguments[] = { actors.get(a) };
+						Message message = new Message( self, actors.get(a), "beginGrowth", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+			}
+		}
+		public void election(Dude candidate, int candidateID) {
+			elections += 1;
+			if (timestamp==0) {{
+				{
+					// writeMessage("ID="+candidateID+" became leader at t="+timestamp+"\n")
+					{
+						Object _arguments[] = { "ID="+candidateID+" became leader at t="+timestamp+"\n" };
+						Message message = new Message( self, self, "writeMessage", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+			}
+}			else {{
+				timestamp += 1;
+				{
+					// writeMessage("ID="+candidateID+" became leader at t="+timestamp+"\n")
+					{
+						Object _arguments[] = { "ID="+candidateID+" became leader at t="+timestamp+"\n" };
+						Message message = new Message( self, self, "writeMessage", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+			}
+}			{
+				// candidate<-tick(timestamp, timestamp, candidateID, 0)
+				{
+					Object _arguments[] = { timestamp, timestamp, candidateID, new Integer(0) };
+					Message message = new Message( self, candidate, "tick", _arguments, null, null );
+					__messages.add( message );
+				}
+			}
+		}
+		public void depose(int candidateID, int timestamp) {
+			this.timestamp = timestamp;
+			{
+				// writeMessage("ID="+candidateID+" was deposed at t="+timestamp+"\n")
+				{
+					Object _arguments[] = { "ID="+candidateID+" was deposed at t="+timestamp+"\n" };
+					Message message = new Message( self, self, "writeMessage", _arguments, null, null );
+					__messages.add( message );
+				}
+			}
+			if (elections==actors.size()) {{
+				{
+					// writeMessage("End of simulation")
+					{
+						Object _arguments[] = { "End of simulation" };
+						Message message = new Message( self, self, "writeMessage", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+			}
+}			else {{
+				{
+					// radialGrowth()
+					{
+						Object _arguments[] = {  };
+						Message message = new Message( self, self, "radialGrowth", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+			}
+}		}
+		public void writeMessage(String toWrite) {
 			try {
 				FileWriter fw = new FileWriter("output.txt", true);
 				BufferedWriter bw = new BufferedWriter(fw);
-				bw.write(s);
+				bw.write(toWrite);
 				bw.close();
 				fw.close();
 			}
 			catch (IOException e) {
-				System.exit(1);
+				{
+					// standardOutput<-println("[error] Writing to output.txt file")
+					{
+						Object _arguments[] = { "[error] Writing to output.txt file" };
+						Message message = new Message( self, standardOutput, "println", _arguments, null, null );
+						__messages.add( message );
+					}
+				}
+				return;
 			}
 
 		}

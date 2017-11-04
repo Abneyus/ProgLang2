@@ -3,31 +3,37 @@ module distributed;
 import java.io.*;
 import java.util.*;
 
-behavior Run implements ActorService {
-  //implements ActorService
+behavior Run {
 
   void act(String[] args)
   {
-    //self.muteGC();
     ArrayList actors = new ArrayList();
     ArrayList lines = new ArrayList();
 
-    Writer writer = new Writer();
-
     String nameServer = args[1];
 
+    // Hack to ensure the output.txt file is empty.
     try
     {
       FileWriter fw = new FileWriter("output.txt");
       fw.close();
+    }
+    catch (IOException e)
+    {
+      standardOutput<-println("[error] Can't open the output.txt file for writing.");
+      System.exit(1);
+    }
+
+    // This block reads each line of the file into the lines arraylist.
+    try
+    {
       FileReader fb = new FileReader(args[0]);
       BufferedReader in = new BufferedReader(fb);
 
-      String temp = temp = in.readLine();
+      String temp = in.readLine();
       while(temp != null)
       {
         lines.add(temp);
-
         temp = in.readLine();
       }
 
@@ -40,6 +46,11 @@ behavior Run implements ActorService {
       System.exit(1);
     }
 
+    Russia supervisor = new Russia();
+
+    // Construct an actor for each of the lines of input with special consideration
+    // given to the first item constructed, it has no left neighbor with which to
+    // construct a "Dude". Its left neighbor is set later.
     for(int a = 0; a < lines.size(); a++)
     {
       String[] bits = ((String)lines.get(a)).split("\t");
@@ -54,7 +65,7 @@ behavior Run implements ActorService {
                   Integer.parseInt(bits[4]),
                   lines.size(),
                   null,
-                  writer)
+                  supervisor)
                   at (new UAN("uan://" + nameServer +"/"+ bits[0]),
                   new UAL("rmsp://" + bits[1] + ":" + bits[2] + "/" + a));
         actors.add(temp);
@@ -68,15 +79,17 @@ behavior Run implements ActorService {
                   Integer.parseInt(bits[4]),
                   lines.size(),
                   (Dude) actors.get(actors.size()-1),
-                  writer)
+                  supervisor)
                   at (new UAN("uan://" + nameServer +"/"+ bits[0]),
                   new UAL("rmsp://" + bits[1] + ":" + bits[2] + "/" + a));
         actors.add(temp);
       }
     }
 
+    // Set the left node of the first actor as appropriate then have the
+    // supervisor start radial growth.
     actors.get(0) <- setLeft(actors.get(actors.size()-1)) @
-    actors.get(0) <- consider(-1, -1, 0, 0);
+    supervisor <- radialGrowth(actors);
 
   }
 }
